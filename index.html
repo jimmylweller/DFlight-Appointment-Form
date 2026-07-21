@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book an Appointment — Scan to Add</title>
+<style>
+  :root{
+    --paper: #F3EFE6;
+    --paper-line: #DCD4C0;
+    --ink: #262220;
+    --ink-soft: #6b6259;
+    --coral: #C1552E;
+    --sage: #5C7A5E;
+    --card: #FFFDF9;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      repeating-linear-gradient(to bottom, transparent, transparent 34px, var(--paper-line) 35px),
+      var(--paper);
+    color:var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:48px 20px;
+  }
+  .sheet{
+    width:100%;
+    max-width:560px;
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    box-shadow: 0 1px 0 var(--paper-line), 0 12px 30px -18px rgba(38,34,32,0.35);
+    position:relative;
+    padding:40px 36px 36px;
+  }
+  .sheet::before{
+    content:"";
+    position:absolute;
+    top:0; left:28px;
+    width:1px; height:100%;
+    background: rgba(193,85,46,0.18);
+  }
+  .eyebrow{
+    font-family: 'Courier New', ui-monospace, monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  h1{
+    font-size:30px;
+    line-height:1.15;
+    margin:0 0 6px;
+    font-weight:400;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    margin:0 0 28px;
+    max-width:48ch;
+  }
+  form{display:flex; flex-direction:column; gap:18px;}
+  label{
+    display:block;
+    font-family:'Courier New', ui-monospace, monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  input, textarea{
+    width:100%;
+    border:none;
+    border-bottom:1.5px solid var(--paper-line);
+    background:transparent;
+    font-family:Georgia, serif;
+    font-size:16px;
+    color:var(--ink);
+    padding:6px 2px 8px;
+    transition:border-color .15s ease;
+  }
+  input:focus, textarea:focus{
+    outline:none;
+    border-bottom-color:var(--coral);
+  }
+  textarea{resize:vertical; min-height:60px; line-height:1.4;}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:480px){
+    .row{grid-template-columns:1fr;}
+    .sheet{padding:32px 22px 28px;}
+  }
+  .actions{
+    margin-top:12px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  button, a.btn{
+    font-family:'Courier New', ui-monospace, monospace;
+    font-size:13px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    cursor:pointer;
+    border:none;
+    padding:13px 22px;
+    display:inline-block;
+    text-decoration:none;
+  }
+  .primary{
+    background:var(--coral);
+    color:var(--paper);
+  }
+  .primary:hover{background:#a8492a;}
+  .ghost{
+    background:transparent;
+    color:var(--ink-soft);
+    border:1.5px solid var(--paper-line);
+  }
+  .ghost:hover{border-color:var(--ink-soft); color:var(--ink);}
+  .hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:2px;
+    line-height:1.5;
+  }
+  .stub{
+    display:none;
+    margin-top:26px;
+    padding:24px 22px;
+    background:#F1F5EF;
+    border:1px dashed var(--sage);
+    color:#3f5540;
+  }
+  .stub.show{display:block;}
+  .stub h2{
+    font-size:15px;
+    margin:0 0 8px;
+    font-weight:400;
+    font-family:'Courier New', ui-monospace, monospace;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .stub p{margin:0 0 12px; font-size:14px; line-height:1.5; color:#3f5540;}
+  .required::after{content:" *"; color:var(--coral);}
+  .qr-wrap{
+    margin-bottom:16px;
+    padding:20px;
+    background:#fff;
+    border:1px solid var(--paper-line);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+  #qrcode{
+    display:flex;
+    padding:10px;
+    background:#fff;
+    margin-bottom:12px;
+  }
+  #qrcode img{ display:block; }
+  .step-num{
+    font-family:'Courier New', ui-monospace, monospace;
+    color:var(--coral);
+    font-weight:bold;
+  }
+</style>
+</head>
+<body>
+  <div class="sheet" style="margin-bottom:24px;">
+    <p class="eyebrow">Step 2 — Share This Form</p>
+    <h1 style="font-size:22px;">Turn your hosted link into a QR code</h1>
+    <p class="sub">Host this page first (e.g. drag it onto <strong>app.netlify.com/drop</strong> — no account needed), then paste the URL it gives you below. Scanning the resulting code opens this exact form on someone's phone.</p>
+    <div class="row" style="grid-template-columns:1fr auto; align-items:end;">
+      <div>
+        <label for="pageUrl">Hosted URL</label>
+        <input id="pageUrl" type="url" placeholder="https://your-site-name.netlify.app">
+      </div>
+      <button type="button" class="primary" id="makePageQr" style="height:38px;">Generate</button>
+    </div>
+    <div class="qr-wrap" id="pageQrWrap" style="display:none; margin-top:18px;">
+      <div id="pageQrcode"></div>
+      <p class="hint">Scan this to open the booking form itself on another phone.</p>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <p class="eyebrow">Step 1 — Appointment Request No. <span id="ticketNo"></span></p>
+    <h1>Book an appointment</h1>
+    <p class="sub">Fill this in to get a QR code. Scan it with a phone camera and it opens straight into Google Calendar with the event pre-filled — no file to download.</p>
+
+    <form id="apptForm">
+      <div>
+        <label class="required" for="subject">What's it for</label>
+        <input id="subject" type="text" placeholder="e.g. Dentist checkup" required>
+      </div>
+
+      <div class="row">
+        <div>
+          <label class="required" for="date">Date</label>
+          <input id="date" type="date" required>
+        </div>
+        <div>
+          <label for="allday">All day?</label>
+          <input id="allday" type="checkbox" style="width:auto; accent-color:var(--coral);">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label class="required" for="startTime">Start time</label>
+          <input id="startTime" type="time" required>
+        </div>
+        <div>
+          <label class="required" for="endTime">End time</label>
+          <input id="endTime" type="time" required>
+        </div>
+      </div>
+
+      <div>
+        <label for="location">Location</label>
+        <input id="location" type="text" placeholder="Address or link">
+      </div>
+
+      <div>
+        <label for="notes">Notes</label>
+        <textarea id="notes" placeholder="Anything worth remembering"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="primary">Generate QR code</button>
+      </div>
+    </form>
+
+    <div class="stub" id="stub">
+      <h2>Scan to add</h2>
+      <p id="stubSummary"></p>
+      <div class="qr-wrap">
+        <div id="qrcode"></div>
+        <p class="hint">
+          <span class="step-num">1.</span> Open your phone's camera and point it at this code.<br>
+          <span class="step-num">2.</span> Tap the notification/link that pops up.<br>
+          <span class="step-num">3.</span> Google Calendar opens with everything filled in — tap <strong>Save</strong>.
+        </p>
+      </div>
+      <div class="actions">
+        <a class="btn primary" id="openLink" href="#" target="_blank" rel="noopener">Open in Google Calendar</a>
+      </div>
+      <p class="hint">This works for Google Calendar specifically. The event goes to whichever Google account is signed in on the scanning phone — you can switch calendars (e.g. work vs. personal) right in the Save screen. If you need Apple/Outlook calendar support instead, let me know and I can add an .ics fallback too.</p>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  document.getElementById('makePageQr').addEventListener('click', function(){
+    const url = document.getElementById('pageUrl').value.trim();
+    if(!url) return;
+    const wrap = document.getElementById('pageQrWrap');
+    const el = document.getElementById('pageQrcode');
+    el.innerHTML = '';
+    new QRCode(el, {
+      text: url,
+      width: 200,
+      height: 200,
+      colorDark: '#262220',
+      colorLight: '#ffffff'
+    });
+    wrap.style.display = 'flex';
+    wrap.scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+
+  document.getElementById('ticketNo').textContent = Math.floor(1000 + Math.random()*9000);
+
+  const form = document.getElementById('apptForm');
+  const stub = document.getElementById('stub');
+  const alldayBox = document.getElementById('allday');
+  const startTime = document.getElementById('startTime');
+  const endTime = document.getElementById('endTime');
+
+  alldayBox.addEventListener('change', () => {
+    startTime.disabled = alldayBox.checked;
+    endTime.disabled = alldayBox.checked;
+    startTime.required = !alldayBox.checked;
+    endTime.required = !alldayBox.checked;
+  });
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  // YYYYMMDD, no separators (Google's dates= format)
+  function toGCalDate(dateStr){
+    return dateStr.replace(/-/g,'');
+  }
+
+  // YYYYMMDDTHHMMSS, local/floating time (paired with &ctz=)
+  function toGCalDateTime(dateStr, timeStr){
+    const [hh,mm] = timeStr.split(':');
+    return `${toGCalDate(dateStr)}T${hh}${mm}00`;
+  }
+
+  // Google's all-day end date is EXCLUSIVE, so add one day
+  function addOneDay(dateStr){
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + 1);
+    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+  }
+
+  function fmtDisplayDate(dateStr){
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  }
+
+  function fmtDisplayTime(t){
+    if(!t) return '';
+    const [hh,mm] = t.split(':').map(Number);
+    const period = hh >= 12 ? 'PM' : 'AM';
+    const hour12 = ((hh + 11) % 12) + 1;
+    return `${hour12}:${pad(mm)} ${period}`;
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const subject = document.getElementById('subject').value.trim();
+    const date = document.getElementById('date').value;
+    const isAllDay = alldayBox.checked;
+    const sTime = isAllDay ? '' : startTime.value;
+    const eTime = isAllDay ? '' : endTime.value;
+    const location = document.getElementById('location').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+
+    let datesParam;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    if (isAllDay) {
+      datesParam = `${toGCalDate(date)}/${addOneDay(date)}`;
+    } else {
+      datesParam = `${toGCalDateTime(date, sTime)}/${toGCalDateTime(date, eTime || sTime)}`;
+    }
+
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: subject,
+      dates: datesParam
+    });
+    if (!isAllDay) params.set('ctz', tz);
+    if (location) params.set('location', location);
+    if (notes) params.set('details', notes);
+
+    const gcalUrl = `https://calendar.google.com/calendar/render?${params.toString()}`;
+
+    document.getElementById('stubSummary').textContent =
+      `${subject} — ${fmtDisplayDate(date)}` + (isAllDay ? ' (all day)' : ` · ${fmtDisplayTime(sTime)}–${fmtDisplayTime(eTime)}`) + (location ? ` · ${location}` : '');
+
+    document.getElementById('openLink').href = gcalUrl;
+
+    const qrEl = document.getElementById('qrcode');
+    qrEl.innerHTML = '';
+    new QRCode(qrEl, {
+      text: gcalUrl,
+      width: 200,
+      height: 200,
+      colorDark: '#262220',
+      colorLight: '#ffffff'
+    });
+
+    stub.classList.add('show');
+    stub.scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+</script>
+</body>
+</html>
