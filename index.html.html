@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book an Appointment</title>
+<style>
+  :root{
+    --paper: #F3EFE6;
+    --paper-line: #DCD4C0;
+    --ink: #262220;
+    --ink-soft: #6b6259;
+    --coral: #C1552E;
+    --sage: #5C7A5E;
+    --card: #FFFDF9;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      repeating-linear-gradient(to bottom, transparent, transparent 34px, var(--paper-line) 35px),
+      var(--paper);
+    color:var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:48px 20px;
+  }
+  .sheet{
+    width:100%;
+    max-width:560px;
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    box-shadow: 0 1px 0 var(--paper-line), 0 12px 30px -18px rgba(38,34,32,0.35);
+    position:relative;
+    padding:40px 36px 36px;
+  }
+  .sheet::before{
+    content:"";
+    position:absolute;
+    top:0; left:28px;
+    width:1px; height:100%;
+    background: rgba(193,85,46,0.18);
+  }
+  .eyebrow{
+    font-family: 'Courier New', ui-monospace, monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  h1{
+    font-size:30px;
+    line-height:1.15;
+    margin:0 0 6px;
+    font-weight:400;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    margin:0 0 28px;
+    max-width:44ch;
+  }
+  form{display:flex; flex-direction:column; gap:18px;}
+  label{
+    display:block;
+    font-family:'Courier New', ui-monospace, monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  input, textarea, select{
+    width:100%;
+    border:none;
+    border-bottom:1.5px solid var(--paper-line);
+    background:transparent;
+    font-family:Georgia, serif;
+    font-size:16px;
+    color:var(--ink);
+    padding:6px 2px 8px;
+    transition:border-color .15s ease;
+  }
+  select{ cursor:pointer; }
+  select:invalid{ color: var(--ink-soft); }
+  input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-bottom-color:var(--coral);
+  }
+  textarea{resize:vertical; min-height:60px; line-height:1.4;}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px;}
+  @media (max-width:480px){
+    .row, .row3{grid-template-columns:1fr;}
+    .sheet{padding:32px 22px 28px;}
+  }
+  .actions{
+    margin-top:12px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  button{
+    font-family:'Courier New', ui-monospace, monospace;
+    font-size:13px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    cursor:pointer;
+    border:none;
+    padding:13px 22px;
+  }
+  .primary{
+    background:var(--coral);
+    color:var(--paper);
+  }
+  .primary:hover{background:#a8492a;}
+  .ghost{
+    background:transparent;
+    color:var(--ink-soft);
+    border:1.5px solid var(--paper-line);
+  }
+  .ghost:hover{border-color:var(--ink-soft); color:var(--ink);}
+  .hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .stub{
+    display:none;
+    margin-top:26px;
+    padding:20px 18px;
+    background:#F1F5EF;
+    border:1px dashed var(--sage);
+    color:#3f5540;
+  }
+  .stub.show{display:block;}
+  .stub h2{
+    font-size:15px;
+    margin:0 0 8px;
+    font-weight:400;
+    font-family:'Courier New', ui-monospace, monospace;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .stub p{margin:0 0 12px; font-size:14px; line-height:1.5; color:#3f5540;}
+  .csv-box{
+    font-family:'Courier New', ui-monospace, monospace;
+    font-size:12px;
+    background:#fff;
+    border:1px solid var(--paper-line);
+    padding:10px 12px;
+    word-break:break-all;
+    color:var(--ink-soft);
+    margin-bottom:12px;
+  }
+  .stub .actions{margin-top:0;}
+  .required::after{content:" *"; color:var(--coral);}
+  .qr-wrap{
+    margin-bottom:14px;
+    padding:14px;
+    background:#fff;
+    border:1px solid var(--paper-line);
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  #qrcode{
+    display:flex;
+    padding:8px;
+    background:#fff;
+  }
+  #qrcode img{ display:block; }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <p class="eyebrow">Appointment Request — No. <span id="ticketNo"></span></p>
+    <h1>Book an appointment</h1>
+    <p class="sub">Fill this in and you'll get a calendar file to add straight to Google Calendar, plus a copyable row for the tracking sheet.</p>
+
+    <form id="apptForm">
+      <div>
+        <label class="required" for="subject">What's it for</label>
+        <input id="subject" type="text" placeholder="e.g. Dentist checkup" required>
+      </div>
+
+      <div class="row">
+        <div>
+          <label class="required" for="date">Date</label>
+          <input id="date" type="date" required>
+        </div>
+        <div>
+          <label for="allday">All day?</label>
+          <input id="allday" type="checkbox" style="width:auto; accent-color:var(--coral);">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label class="required" for="startTime">Start time</label>
+          <input id="startTime" type="time" required>
+        </div>
+        <div>
+          <label class="required" for="endTime">End time</label>
+          <input id="endTime" type="time" required>
+        </div>
+      </div>
+
+      <div>
+        <label class="required" for="calendar">Add to calendar</label>
+        <select id="calendar" required>
+          <option value="" disabled selected>Choose a calendar</option>
+          <option value="DFlt Overall">DFlt Overall</option>
+          <option value="Element 1">Element 1</option>
+          <option value="Element 2">Element 2</option>
+          <option value="Element 3">Element 3</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="location">Location</label>
+        <input id="location" type="text" placeholder="Address or link">
+      </div>
+
+      <div>
+        <label for="notes">Notes</label>
+        <textarea id="notes" placeholder="Anything worth remembering"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="primary">Create appointment</button>
+      </div>
+    </form>
+
+    <div class="stub" id="stub">
+      <h2>Ready</h2>
+      <p id="stubSummary"></p>
+      <div class="csv-box" id="csvRow"></div>
+      <div class="qr-wrap" id="qrWrap">
+        <div id="qrcode"></div>
+        <p class="hint" style="margin-top:8px;">Scan to read the CSV row on another phone — no app needed, any camera or QR reader will show the plain text.</p>
+      </div>
+      <div class="actions">
+        <button class="primary" id="downloadIcs">Download .ics for Calendar</button>
+        <button class="ghost" id="copyCsv">Copy CSV row</button>
+      </div>
+      <p class="hint">Open the .ics file directly, or in Google Calendar go to Settings → Import &amp; export → Import — just make sure <strong id="calHint"></strong> is the calendar selected in the "Add to calendar" dropdown before you import.</p>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  document.getElementById('ticketNo').textContent = Math.floor(1000 + Math.random()*9000);
+
+  const form = document.getElementById('apptForm');
+  const stub = document.getElementById('stub');
+  const alldayBox = document.getElementById('allday');
+  const startTime = document.getElementById('startTime');
+  const endTime = document.getElementById('endTime');
+
+  alldayBox.addEventListener('change', () => {
+    startTime.disabled = alldayBox.checked;
+    endTime.disabled = alldayBox.checked;
+    startTime.required = !alldayBox.checked;
+    endTime.required = !alldayBox.checked;
+  });
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function toIcsDate(dateStr, timeStr){
+    const [y,m,d] = dateStr.split('-');
+    if(!timeStr) return `${y}${m}${d}`;
+    const [hh,mm] = timeStr.split(':');
+    return `${y}${m}${d}T${hh}${mm}00`;
+  }
+
+  function fmtDisplayDate(dateStr){
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  }
+
+  function fmtDisplayTime(t){
+    if(!t) return '';
+    const [hh,mm] = t.split(':').map(Number);
+    const period = hh >= 12 ? 'PM' : 'AM';
+    const hour12 = ((hh + 11) % 12) + 1;
+    return `${hour12}:${pad(mm)} ${period}`;
+  }
+
+  let lastIcs = '';
+  let lastCsvRow = '';
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const subject = document.getElementById('subject').value.trim();
+    const date = document.getElementById('date').value;
+    const isAllDay = alldayBox.checked;
+    const sTime = isAllDay ? '' : startTime.value;
+    const eTime = isAllDay ? '' : endTime.value;
+    const location = document.getElementById('location').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+    const calendar = document.getElementById('calendar').value;
+
+    // Build ICS
+    const dtStart = toIcsDate(date, sTime);
+    const dtEnd = toIcsDate(date, eTime || sTime);
+    const uid = 'appt-' + Date.now() + '@appointment-form';
+    const stamp = new Date().toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
+
+    const icsLines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Appointment Form//EN',
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'DTSTAMP:' + stamp,
+      isAllDay ? ('DTSTART;VALUE=DATE:' + dtStart) : ('DTSTART:' + dtStart),
+      isAllDay ? ('DTEND;VALUE=DATE:' + dtEnd) : ('DTEND:' + dtEnd),
+      'SUMMARY:' + subject.replace(/([,;])/g, '\\$1'),
+      calendar ? ('CATEGORIES:' + calendar.replace(/([,;])/g, '\\$1')) : null,
+      location ? ('LOCATION:' + location.replace(/([,;])/g, '\\$1')) : null,
+      notes ? ('DESCRIPTION:' + notes.replace(/([,;])/g, '\\$1').replace(/\n/g,'\\n')) : null,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].filter(Boolean);
+
+    lastIcs = icsLines.join('\r\n');
+
+    // Build CSV row (Google Calendar CSV import format)
+    const csvDate = date.split('-').reverse().join('/').replace(/(\d+)\/(\d+)\/(\d+)/, (m,y,mo,d)=>`${mo}/${d}/${y}`);
+    const csvStart = isAllDay ? '' : fmtDisplayTime(sTime);
+    const csvEnd = isAllDay ? '' : fmtDisplayTime(eTime);
+    const esc = (s) => `"${(s||'').replace(/"/g,'""')}"`;
+    lastCsvRow = [esc(subject), csvDate, csvStart, csvDate, csvEnd, isAllDay ? 'True':'False', esc(notes), esc(location), 'True', esc(calendar)].join(',');
+
+    document.getElementById('stubSummary').textContent =
+      `${subject} — ${fmtDisplayDate(date)}` + (isAllDay ? ' (all day)' : ` · ${fmtDisplayTime(sTime)}–${fmtDisplayTime(eTime)}`) + (location ? ` · ${location}` : '') + ` · Calendar: ${calendar}`;
+    document.getElementById('csvRow').textContent = lastCsvRow;
+    document.getElementById('calHint').textContent = calendar;
+
+    const qrEl = document.getElementById('qrcode');
+    qrEl.innerHTML = '';
+    new QRCode(qrEl, {
+      text: lastCsvRow,
+      width: 160,
+      height: 160,
+      colorDark: '#262220',
+      colorLight: '#ffffff'
+    });
+
+    stub.classList.add('show');
+    stub.scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+
+  document.getElementById('downloadIcs').addEventListener('click', function(){
+    if(!lastIcs) return;
+    const blob = new Blob([lastIcs], {type:'text/calendar'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'appointment.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('copyCsv').addEventListener('click', function(){
+    if(!lastCsvRow) return;
+    navigator.clipboard.writeText(lastCsvRow).then(() => {
+      const btn = document.getElementById('copyCsv');
+      const original = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => btn.textContent = original, 1500);
+    });
+  });
+</script>
+</body>
+</html>
